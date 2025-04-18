@@ -4,20 +4,25 @@ import customtkinter as ctk
 import PIL
 from collections import defaultdict
 import os
+import sys
 import shutil
 import pandas as pd
 from tkinter import filedialog as fd
 from customtkinter import CTk, CTkButton, CTkLabel
 
-ctk.set_default_color_theme(r"breeze.json")
+def get_resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+ctk.set_default_color_theme(get_resource_path("breeze.json"))
 ctk.set_appearance_mode("Dark")
 
 class SecondPage(CTk):
     def __init__(self, data):
         super().__init__()
-        self.title("New GUI Page - Data Loaded")
-        self.geometry("900x600")
-
+        self.title("ML AlgoHub")
+        self.geometry("1024x720+150+25")
+ 
         # Just a placeholder layout - you can add widgets here freely
         title = CTkLabel(self, text="Welcome to Page 2!", font=("Arial", 24, "bold"))
         title.pack(pady=40)
@@ -38,7 +43,7 @@ class SecondPage(CTk):
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry('1024x720')
+        self.geometry('1024x720+150+25')
         self.title("ML AlgoHub")
         self.upload_folder = "uploads"
         os.makedirs(self.upload_folder, exist_ok=True)
@@ -62,7 +67,8 @@ class App(ctk.CTk):
         self.upperframe.grid_columnconfigure(2,weight=1)
         self.upperframe.grid_columnconfigure(3,weight=1)
         
-        self.img_1=PIL.Image.open("LogoIcon.png")
+        # logo
+        self.img_1=PIL.Image.open(get_resource_path("PHOTO/LogoIcon.png"))
         self.img_1=ctk.CTkImage(self.img_1,size=(170,70))
         self.img1=ctk.CTkLabel(self.upperframe , text=" ",image=self.img_1)
         self.img1.grid(row=0,column=0 ,padx=20, pady=20,sticky='w')
@@ -91,12 +97,11 @@ class App(ctk.CTk):
         self.centerframe.grid_rowconfigure((0, 1, 2,3), weight=1)  # All rows same height
         self.centerframe.grid_columnconfigure(0, weight=1)       # Center column
         
-        #logo
-        self.img_2=PIL.Image.open("LogoIcon.png")
+        self.img_2=PIL.Image.open(get_resource_path("PHOTO/LogoIcon.png"))
         self.img_2=ctk.CTkImage(self.img_2,size=(500,200))
         self.img2=ctk.CTkLabel(self.centerframe , text=" ",image=self.img_2)
         self.img2.grid(row=0,column=0 ,padx=20, pady=20,)
-        
+         
         #upload file
         
        # Upload file button and label inside centerframe
@@ -125,7 +130,9 @@ class App(ctk.CTk):
             self.uploaded_path = destination
             self.uploaded_data = pd.read_csv(destination)
 
-            self.label.configure(text=f"Uploaded: {filename}")    
+            self.label.configure(text=f"Uploaded: {filename}")  
+
+      
     def use_uploaded_data(self):
         if self.uploaded_data is not None:
             self.destroy()  # close current window
