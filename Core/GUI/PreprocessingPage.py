@@ -192,10 +192,10 @@ import tkinter as tk
 class SecondPage(ctk.CTk):
     def __init__(self, data):
         super().__init__()
+        print("SecondPage initialized with data:", data)
         self.title("Data Preprocessing Page")
         self.geometry("1024x700")
         self.configure(fg_color="gray14")
-
         self.original_df = data
         self.processed_df = self.original_df.copy()
 

@@ -1,7 +1,9 @@
 import customtkinter as ctk
+import pandas as pd
 import PIL.Image
 import os
 import sys
+from tkinter import messagebox 
 from customtkinter import CTk, CTkButton, CTkLabel
 from FileUploader import FileUploader
 
@@ -14,15 +16,10 @@ class App(ctk.CTk):
         super().__init__()
         self.geometry('1024x720+250+50')
         self.title("ML AlgoHub")
-
         self.uploader = FileUploader()
-
-        # متغيرات لحفظ البيانات
         self.uploaded_data = None
         self.uploaded_path = None
-        # Callback function to be called on "Done"
         self.on_done_callback = on_done_callback
-        # GUI
         self.create_gui()
 
     def create_gui(self):
@@ -73,25 +70,26 @@ class App(ctk.CTk):
         self.label = CTkLabel(centerframe, text=" ")
         self.label.grid(row=2, column=0, pady=(0, 1), sticky='n')
 
-        center_button = ctk.CTkButton(centerframe, text="Done", fg_color="#1E3A46", command=self.use_uploaded_data)
+        center_button = ctk.CTkButton(centerframe, text="Done", fg_color="#1E3A46", command=self.done)
         center_button.grid(row=3, column=0, sticky='n')
-
     def upload_file(self):
-        filename, destination, data = self.uploader.upload_file()
-        if filename:
-            self.uploaded_path = destination
-            self.uploaded_data = data
-            self.label.configure(text=f"Uploaded: {filename}")
+            filename, destination, data = self.uploader.upload_file()
+            if filename:
+                self.uploaded_path = destination
+                self.uploaded_data = data
+                self.label.configure(text=f"Uploaded: {filename}")
 
     def use_uploaded_data(self):
         return self.uploaded_data
     
     def done(self):
-        if self.uploaded_data:
+        if self.uploaded_data is not None and len(self.uploaded_data) > 0:
             if self.on_done_callback:
                 self.on_done_callback(self.uploaded_data)
         else:
-            ctk.CTkMessagebox(title="Error", message="Please upload a file first.", icon="cancel")
+            messagebox.showerror("Error", "Please upload a file first.")
+
+
 # if __name__ == "__main__":
 #     app = App()
-#     app.mainloop()
+#     app.mainloop()                                     

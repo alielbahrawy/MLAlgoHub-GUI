@@ -11,7 +11,7 @@ def get_resource_path(relative_path):
 
 # Callback function to be called when 'Done' is pressed
 def on_done(data):
-    # Destroy the main window and open the preprocessing page
+    print("Data received:", data)  
     app.destroy()
     second_page = SecondPage(data)
     second_page.mainloop()
@@ -27,4 +27,4 @@ def main():
     app.mainloop()
 
 if __name__ == '__main__':
-    main()
+    main()                        
