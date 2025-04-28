@@ -135,7 +135,7 @@ class DatasetSummaryApp(ctk.CTk):
             return
         self.sample_text.configure(state="normal")
         self.sample_text.delete("0.0", "end")
-        sample_data = self.df.to_string(index=False)
+        sample_data = self.df.head(30).to_string(index=False)  # غيرنا لـ 25 سطر
         self.sample_text.insert("0.0", sample_data)
         self.sample_text.configure(state="disabled")
 
