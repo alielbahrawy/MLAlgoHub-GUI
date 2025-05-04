@@ -72,24 +72,17 @@ class App(ctk.CTk):
 
         center_button = ctk.CTkButton(centerframe, text="Done", fg_color="#1E3A46", command=self.done)
         center_button.grid(row=3, column=0, sticky='n')
-    def upload_file(self):
-            filename, destination, data = self.uploader.upload_file()
-            if filename:
-                self.uploaded_path = destination
-                self.uploaded_data = data
-                self.label.configure(text=f"Uploaded: {filename}")
 
-    def use_uploaded_data(self):
-        return self.uploaded_data
-    
+    def upload_file(self):
+        filename, destination, data = self.uploader.upload_file()
+        if filename:
+            self.uploaded_path = destination
+            self.uploaded_data = data
+            self.label.configure(text=f"Uploaded: {filename}")
+
     def done(self):
         if self.uploaded_data is not None and len(self.uploaded_data) > 0:
             if self.on_done_callback:
                 self.on_done_callback(self.uploaded_data)
         else:
             messagebox.showerror("Error", "Please upload a file first.")
-
-
-# if __name__ == "__main__":
-#     app = App()
-#     app.mainloop()                                     

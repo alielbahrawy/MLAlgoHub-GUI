@@ -1,38 +1,38 @@
 import customtkinter as ctk
 import pandas as pd
 import numpy as np
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 class DatasetSummaryApp(ctk.CTk):
-    def __init__(self, root):
+    def __init__(self, data, on_next_callback=None):
         super().__init__()
-        self.root = root
-        self.root.title("Dataset Summary - ML ALGONHUB")
-        self.root.geometry("900x600")
-        self.root.configure(fg_color="gray14")
-        self.df = None
+        self.title("Dataset Summary - ML ALGONHUB")
+        self.geometry('1024x720+250+50')
+        self.configure(fg_color="gray14")
+        self.df = data
+        self.on_next_callback = on_next_callback
         self.create_widgets()
+        if self.df is not None:
+            self.display_sample()
+            self.display_summary()
 
     def create_widgets(self):
-        upperframe = ctk.CTkFrame(self.root, height=50, corner_radius=0, fg_color="gray14")
+        upperframe = ctk.CTkFrame(self, height=50, corner_radius=0, fg_color="gray14")
         upperframe.pack(fill="x")
 
-        self.label_title = ctk.CTkLabel(self.root, text="Dataset Summary", font=("Arial", 24, "bold"), text_color="#2B5B6D")
+        self.label_title = ctk.CTkLabel(self, text="Dataset Summary", font=("Arial", 24, "bold"), text_color="#2B5B6D")
         self.label_title.pack(pady=5)
 
-        self.btn_load = ctk.CTkButton(self.root, text="Load CSV File", command=self.load_file, fg_color="#1E3A46", hover_color="#144870")
-        self.btn_load.pack(pady=5)
-
-        self.main_frame = ctk.CTkFrame(self.root, fg_color="gray14")
+        self.main_frame = ctk.CTkFrame(self, fg_color="gray14")
         self.main_frame.pack(pady=5, padx=5, fill="both", expand=True)
 
         self.left_frame = ctk.CTkFrame(self.main_frame, fg_color="gray14")
         self.left_frame.pack(side="left", padx=5, fill="both", expand=True)
 
-        self.label_sample = ctk.CTkLabel(self.left_frame, text="Name of the Dataset", font=("Arial", 12, "italic"), text_color="white")
+        self.label_sample = ctk.CTkLabel(self.left_frame, text="Dataset Preview", font=("Arial", 12, "italic"), text_color="white")
         self.label_sample.pack(anchor="nw", padx=5, pady=2)
 
         self.sample_container = ctk.CTkFrame(self.left_frame, fg_color="gray14")
@@ -49,7 +49,7 @@ class DatasetSummaryApp(ctk.CTk):
             border_color="#2B5B6D"
         )
         self.sample_text.pack(pady=2, padx=2, fill="both", expand=True)
-        self.sample_text.insert("0.0", "sample of data")
+        self.sample_text.insert("0.0", "Sample of data will be displayed here.")
         self.sample_text.configure(state="disabled")
 
         self.right_frame = ctk.CTkFrame(self.main_frame, fg_color="gray14")
@@ -84,7 +84,7 @@ class DatasetSummaryApp(ctk.CTk):
         self.btn_back = ctk.CTkButton(
             self.button_frame,
             text="◀ Back",
-            command=lambda: messagebox.showinfo("Back", "Back button pressed!"),
+            command=lambda: messagebox.showinfo("Back", "Back functionality not implemented yet!"),
             fg_color="#1E3A46",
             hover_color="#144870",
             font=("Arial", 14),
@@ -105,41 +105,18 @@ class DatasetSummaryApp(ctk.CTk):
         )
         self.btn_next_visualization.pack(side="right", padx=5)
 
-    def load_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-        if file_path:
-            try:
-                self.df = pd.read_csv(file_path, encoding="utf-8")
-                dataset_name = file_path.split("/")[-1]
-                self.label_sample.configure(text=dataset_name)
-                self.display_sample()
-                self.display_summary()
-                messagebox.showinfo("Success", "File loaded successfully!")
-            except UnicodeDecodeError:
-                try:
-                    self.df = pd.read_csv(file_path, encoding="latin1")
-                    dataset_name = file_path.split("/")[-1]
-                    self.label_sample.configure(text=dataset_name)
-                    self.display_sample()
-                    self.display_summary()
-                    messagebox.showinfo("Success", "File loaded successfully with latin1 encoding!")
-                except Exception as e:
-                    messagebox.showerror("Error", f"Failed to load file: {e}")
-                    self.df = None
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to load file: {e}")
-                self.df = None
-
     def display_sample(self):
         if self.df is None:
             return
         self.sample_text.configure(state="normal")
         self.sample_text.delete("0.0", "end")
-        sample_data = self.df.head(30).to_string(index=False)  # غيرنا لـ 25 سطر
+        sample_data = self.df.head(30).to_string(index=False)
         self.sample_text.insert("0.0", sample_data)
         self.sample_text.configure(state="disabled")
 
     def display_summary(self):
+        if self.df is None:
+            return
         self.summary_text.configure(state="normal")
         self.summary_text.delete("0.0", "end")
 
@@ -188,9 +165,8 @@ class DatasetSummaryApp(ctk.CTk):
         self.summary_text.configure(state="disabled")
 
     def next_visualization(self):
-        messagebox.showinfo("Next Visualization", "This feature is not implemented yet!")
-
-if __name__ == "__main__":
-    root = ctk.CTk()
-    app = DatasetSummaryApp(root)
-    root.mainloop()
+        if self.df is None:
+            messagebox.showerror("Error", "No dataset available.")
+            return
+        if self.on_next_callback:
+            self.on_next_callback(self.df)

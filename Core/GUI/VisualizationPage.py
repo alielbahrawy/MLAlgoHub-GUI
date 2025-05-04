@@ -7,14 +7,14 @@ from ydata_profiling import ProfileReport
 import seaborn as sns
 import os
 import sys
-from PIL import Image as PILImage  # Renamed to avoid naming conflicts
+from PIL import Image as PILImage
 
 class VisualizationPage(ctk.CTk):
     def __init__(self, data, on_next_callback=None):
         super().__init__()
         self.title("Dataset Visualization")
         self.geometry('1024x720+250+50')
-        self.configure(fg_color="#2b2b2b")  # Dark Mode background
+        self.configure(fg_color="#2b2b2b")
         self.df = data
         self.chart_frames = []
         self.chart_canvases = []
@@ -22,10 +22,10 @@ class VisualizationPage(ctk.CTk):
 
         self.create_header_frame()
         self.create_main_frame()
-        self.display_data()  # Display charts and insights automatically
+        if self.df is not None:
+            self.display_data()
 
     def get_resource_path(self, relative_path):
-        """Get the absolute path to a resource, works for dev and PyInstaller."""
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
 
@@ -34,20 +34,18 @@ class VisualizationPage(ctk.CTk):
         self.header_frame.pack(side=ctk.TOP, fill=ctk.X, padx=5, pady=5)
         self.header_frame.pack_propagate(False)
 
-        # Logo
         try:
             logo_path = self.get_resource_path("Resources/LogoIcon.png")
             img_r = PILImage.open(logo_path)
-            img_1 = ctk.CTkImage(img_r, size=(170, 70))  # Adjusted size to fit header
+            img_1 = ctk.CTkImage(img_r, size=(170, 70))
             self.logo_label = ctk.CTkLabel(
                 self.header_frame,
-                text="",  # No text, only image
+                text="",
                 image=img_1,
                 fg_color="#1a1a1a"
             )
             self.logo_label.pack(side=ctk.LEFT, padx=10)
         except Exception as e:
-            # Fallback to text if logo fails to load
             self.logo_label = ctk.CTkLabel(
                 self.header_frame,
                 text="ML ALGOHUB",
@@ -58,7 +56,6 @@ class VisualizationPage(ctk.CTk):
             self.logo_label.pack(side=ctk.LEFT, padx=10)
             print(f"Failed to load logo: {e}")
 
-        # Title
         title_label = ctk.CTkLabel(
             self.header_frame,
             text="Dataset Visualization",
@@ -73,7 +70,6 @@ class VisualizationPage(ctk.CTk):
         self.main_frame.pack(fill=ctk.BOTH, expand=True, padx=10, pady=10)
         self.main_frame.pack_propagate(False)
 
-        # Split into left and right frames
         self.eda_left_frame = ctk.CTkFrame(self.main_frame, fg_color="#333333", corner_radius=10, width=int(1200 * 0.65))
         self.eda_left_frame.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=False, padx=5, pady=5)
         self.eda_left_frame.pack_propagate(False)
@@ -82,16 +78,14 @@ class VisualizationPage(ctk.CTk):
         self.eda_right_frame.pack(side=ctk.RIGHT, fill=ctk.BOTH, expand=False, padx=5, pady=5)
         self.eda_right_frame.pack_propagate(False)
 
-        # Left frame: Charts
         charts_label = ctk.CTkLabel(
             self.eda_left_frame,
-            text="Important Charts: Histogram, Heatmap, Bar Chart, Pair plot, else",
+            text="Important Charts: Histogram, Heatmap, Bar Chart, Pair plot, etc.",
             font=("Arial", 14, "bold"),
             text_color="#ffffff"
         )
         charts_label.pack(anchor="w", padx=10, pady=5)
 
-        # Create a grid for chart placeholders (2 rows, 3 columns, but we use 5 slots)
         self.chart_grid_frame = ctk.CTkFrame(self.eda_left_frame, fg_color="#333333")
         self.chart_grid_frame.pack(fill=ctk.BOTH, expand=True, padx=10, pady=10)
 
@@ -108,7 +102,7 @@ class VisualizationPage(ctk.CTk):
             chart_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
             chart_frame.pack_propagate(False)
 
-            placeholder_label = ctk.CTkLabel(chart_frame, text="Image here", font=("Arial", 12), fg_color="#444444", text_color="#aaaaaa")
+            placeholder_label = ctk.CTkLabel(chart_frame, text="Chart will appear here", font=("Arial", 12), fg_color="#444444", text_color="#aaaaaa")
             placeholder_label.pack(expand=True)
 
             self.chart_frames.append(chart_frame)
@@ -119,12 +113,9 @@ class VisualizationPage(ctk.CTk):
         self.chart_grid_frame.grid_columnconfigure(1, weight=1)
         self.chart_grid_frame.grid_columnconfigure(2, weight=1)
 
-        # Right frame: Insights and Dropdown
         insights_label = ctk.CTkLabel(
             self.eda_right_frame,
-            text="Insights text "
-            "\n(correlations ... " \
-            "\nalert from ydata Profiling)",
+            text="Insights\n(Correlations, Alerts from ydata-profiling)",
             font=("Arial", 14, "bold"),
             text_color="#ffffff"
         )
@@ -134,11 +125,10 @@ class VisualizationPage(ctk.CTk):
         self.insights_text.pack(fill="x", padx=10, pady=5)
         self.insights_text.insert("end", "Insights will be displayed here after loading the dataset.")
 
-        # Dropdown for chart generation
         dropdown_frame = ctk.CTkFrame(self.eda_right_frame, fg_color="#333333")
         dropdown_frame.pack(fill="x", padx=10, pady=5)
 
-        dropdown_label = ctk.CTkLabel(dropdown_frame, text="Dropdown to", font=("Arial", 12), text_color="#ffffff")
+        dropdown_label = ctk.CTkLabel(dropdown_frame, text="Select Chart:", font=("Arial", 12), text_color="#ffffff")
         dropdown_label.pack(side=ctk.LEFT, padx=(0, 5))
 
         self.chart_dropdown_var = ctk.StringVar()
@@ -155,7 +145,6 @@ class VisualizationPage(ctk.CTk):
         )
         self.chart_dropdown.pack(side=ctk.LEFT, pady=5)
 
-        # Button to generate chart based on dropdown selection
         self.generate_chart_button = ctk.CTkButton(
             dropdown_frame,
             text="Generate Chart",
@@ -167,7 +156,6 @@ class VisualizationPage(ctk.CTk):
         )
         self.generate_chart_button.pack(side=ctk.LEFT, padx=5)
 
-        # Button to go to the Preprocessing Page
         next_button = ctk.CTkButton(
             self.eda_right_frame,
             text="Next: Preprocessing",
@@ -289,7 +277,8 @@ class VisualizationPage(ctk.CTk):
             self.chart_canvases.append(canvas)
 
     def go_to_preprocessing(self):
+        if self.df is None:
+            messagebox.showerror("Error", "No dataset available.")
+            return
         if self.on_next_callback:
-            self.destroy()
             self.on_next_callback(self.df)
-
