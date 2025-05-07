@@ -32,7 +32,7 @@ class DatasetSummaryApp(ctk.CTk):
         self.left_frame = ctk.CTkFrame(self.main_frame, fg_color="gray14")
         self.left_frame.pack(side="left", padx=5, fill="both", expand=True)
 
-        self.label_sample = ctk.CTkLabel(self.left_frame, text="Dataset Preview", font=("Arial", 12, "italic"), text_color="white")
+        self.label_sample = ctk.CTkLabel(self.left_frame, text="Dataset Preview", font=("Arial", 12, "italic"), text_color="#2B5B6D")
         self.label_sample.pack(anchor="nw", padx=5, pady=2)
 
         self.sample_container = ctk.CTkFrame(self.left_frame, fg_color="gray14")
@@ -42,7 +42,7 @@ class DatasetSummaryApp(ctk.CTk):
             self.sample_container,
             height=300,
             width=400,
-            fg_color="#1E3A46",
+            fg_color="#333333",
             text_color="white",
             wrap="none",
             border_width=1,
@@ -62,7 +62,7 @@ class DatasetSummaryApp(ctk.CTk):
             self.right_frame,
             height=300,
             width=400,
-            fg_color="#1E3A46",
+            fg_color="#333333",
             text_color="white",
             border_width=1,
             border_color="#2B5B6D"
@@ -81,17 +81,7 @@ class DatasetSummaryApp(ctk.CTk):
         self.button_frame = ctk.CTkFrame(self.right_frame, fg_color="gray14")
         self.button_frame.pack(pady=5, padx=2, fill="x")
 
-        self.btn_back = ctk.CTkButton(
-            self.button_frame,
-            text="◀ Back",
-            command=lambda: messagebox.showinfo("Back", "Back functionality not implemented yet!"),
-            fg_color="#1E3A46",
-            hover_color="#144870",
-            font=("Arial", 14),
-            corner_radius=8,
-            height=40
-        )
-        self.btn_back.pack(side="left", padx=5)
+
 
         self.btn_next_visualization = ctk.CTkButton(
             self.button_frame,
