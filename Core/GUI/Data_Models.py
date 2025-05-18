@@ -21,7 +21,7 @@ class MLModel(ctk.CTk):
         super().__init__()
 
         self.title("ML AlgoHub - Dataset Models")
-        self.geometry("1200x750+250+50")
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.processed_df = processed_df
         self.feature_vars = {}
         self.label_encoder = LabelEncoder()

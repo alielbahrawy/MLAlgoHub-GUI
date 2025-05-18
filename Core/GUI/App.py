@@ -14,7 +14,7 @@ def get_resource_path(relative_path):
 class App(ctk.CTk):
     def __init__(self, on_done_callback=None):
         super().__init__()
-        self.geometry('1024x720+250+50')
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.title("ML AlgoHub")
         self.uploader = FileUploader()
         self.uploaded_data = None

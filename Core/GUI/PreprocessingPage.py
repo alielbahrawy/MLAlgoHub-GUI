@@ -18,7 +18,7 @@ class PrePage(ctk.CTk):
         super().__init__()
 
         self.title("ML AlgoHub - Data Preprocessing")
-        self.geometry("1200x750+250+50")
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.data = data
         self.processed_df = data.copy() if data is not None else None
         self.on_back_callback = on_back_callback

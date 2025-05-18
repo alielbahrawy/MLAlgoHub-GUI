@@ -14,7 +14,7 @@ class VisualizationPage(ctk.CTk):
         super().__init__()
 
         self.title("ML AlgoHub - Data Visualization")
-        self.geometry("1200x750+250+50")
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.data = data
         self.on_next_callback = on_next_callback
         self.plots = []  # To store plot canvases for clearing

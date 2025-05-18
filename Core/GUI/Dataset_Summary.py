@@ -10,7 +10,7 @@ class DatasetSummaryApp(ctk.CTk):
     def __init__(self, data=None, on_next_callback=None):
         super().__init__()
 
-        self.title("ML AlgoHub - Dataset Summary")
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.geometry("1200x750+250+50")
         self.configure(fg_color="#2b2b2b")  # Dark gray background
         self.data = data
