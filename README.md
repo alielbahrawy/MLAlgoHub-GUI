@@ -40,31 +40,31 @@ Here’s a glimpse of ML AlgoHub in action:
 
 ### ✅ Welcome Page with Logo  
 Start your journey with a sleek welcome screen featuring the ML AlgoHub logo.  
-![Welcome Page]([PUT_IMAGE_LINK_HERE](https://drive.google.com/file/d/1_yMEkTAfs7lI9T7rSsNTvwBW2YzTCIIB/view?usp=drive_link))
+![Welcome Page](images\welcome.jpg)
 
 ---
 
 ### 📊 Data Summary Page  
 Get a quick overview of your dataset with key statistics and insights.  
-![Data Summary]([PUT_IMAGE_LINK_HERE](https://drive.google.com/file/d/1J_Q9Ejy7sAfBdn-w-AY7U2mGo9uUxOi_/view?usp=drive_link))
+![Data Summary](images\summary.jpg)
 
 ---
 
 ### 🧹 Data Preprocessing Page  
 Clean and prepare your data with easy-to-use preprocessing tools.  
-![Preprocessing Page]([PUT_IMAGE_LINK_HERE](https://drive.google.com/file/d/1JCygAwYZW0sEpX6lcwfSvgw1IK1ekFjf/view?usp=drive_link))
+![Preprocessing Page](images\pre.jpg)
 
 ---
 
 ### 📈 Visualization Page  
 Explore your data with interactive plots and visualizations.  
-![Visualization Page]([PUT_IMAGE_LINK_HERE](https://drive.google.com/file/d/1l_YQu1TmerOrrG4zrO6iC1bWkaCNMPYx/view?usp=drive_link))
+![Visualization Page](images\vi.jpg)
 
 ---
 
 ### 🤖 Models Page  
 Train and evaluate a variety of ML models with detailed metrics.  
-![Models Page]([PUT_IMAGE_LINK_HERE](https://drive.google.com/file/d/1MYLGkLEo5z75eCjNFDwrhoJXvF9-oXtA/view?usp=drive_link))
+![Models Page](images\models.jpg)
 
 ---
 
