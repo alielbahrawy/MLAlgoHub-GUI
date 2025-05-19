@@ -42,11 +42,25 @@ class App(ctk.CTk):
         text2 = ctk.CTkLabel(upperframe, text="Home", font=("arial", 15, 'bold'), text_color="#2B5B6D")
         text2.grid(row=0, column=1, padx=10, pady=30)
 
-        text3 = ctk.CTkLabel(upperframe, text="About Us", font=("arial", 13, 'bold'))
-        text3.grid(row=0, column=2, padx=10, pady=30)
+        about_us_btn = ctk.CTkButton(
+            upperframe, 
+            text="About Us", 
+            font=("arial", 13, 'bold'),
+            fg_color="transparent",
+            hover_color="#1E3A46",
+            command=self.show_about_us
+        )
+        about_us_btn.grid(row=0, column=2, padx=10, pady=30)
 
-        text4 = ctk.CTkLabel(upperframe, text="Contact Us", font=("arial", 13, 'bold'))
-        text4.grid(row=0, column=3, padx=10, pady=30)
+        contact_us_btn = ctk.CTkButton(
+            upperframe, 
+            text="Contact Us", 
+            font=("arial", 13, 'bold'),
+            fg_color="transparent",
+            hover_color="#1E3A46",
+            command=self.show_contact_us
+        )
+        contact_us_btn.grid(row=0, column=3, padx=10, pady=30)
 
         center_wrapper = ctk.CTkFrame(self, fg_color="transparent")
         center_wrapper.grid(row=1, column=0, sticky='nsew')
@@ -72,6 +86,28 @@ class App(ctk.CTk):
 
         center_button = ctk.CTkButton(centerframe, text="Done", fg_color="#1E3A46", command=self.done)
         center_button.grid(row=3, column=0, sticky='n')
+
+    def show_about_us(self):
+        messagebox.showinfo(
+            "About Us",
+            "We are a dedicated team of students from the Faculty of Artificial Intelligence at Menoufia University."
+            "This project, ML AlgoHub, was developed as part of our Machine Learning course requirements during the "
+            "second semester of our second academic year..\nOur team consists of five passionate members:\n"
+            "Ali Elbahrawy\nMohamed Alaa\nMaryam Hassan\nAmira Tallat and Shrouk Kabeel\n(two gentlemen and three ladies)."
+            "We poured our hearts into creating this application, aiming to make machine learning accessible and intuitive."
+            "Thank you for exploring our work—we hope it inspires and supports your data science journey.."
+        )
+
+    def show_contact_us(self):
+        messagebox.showinfo(
+            "Contact Us",
+            "Reach out to our team:\n\n"
+            "Ali Elbahrawy: ali.fathy.ali20@gmail.com\n"
+            "Mohamed Alaa: Mohamed.Aalaa5@ai.menofia.edu.eg\n"
+            "Maryam Hassan: marryam.hassan10@gmail.com\n"
+            "Amira Tallat: amiratallat063@gmail.com\n"
+            "Shrouk Kabeel: shroukkabeel12345@gmail.com"
+        )
 
     def upload_file(self):
         filename, destination, data = self.uploader.upload_file()

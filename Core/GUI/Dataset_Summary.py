@@ -9,9 +9,7 @@ ctk.set_default_color_theme("blue")
 class DatasetSummaryApp(ctk.CTk):
     def __init__(self, data=None, on_next_callback=None):
         super().__init__()
-
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
-        self.geometry("1200x750+250+50")
         self.configure(fg_color="#2b2b2b")  # Dark gray background
         self.data = data
         self.on_next_callback = on_next_callback
@@ -46,7 +44,7 @@ class DatasetSummaryApp(ctk.CTk):
         ctk.CTkButton(buttons_frame, text="Refresh Summary", command=self.display_summary, fg_color="#00b7eb").pack(side="left", padx=10)
         ctk.CTkButton(buttons_frame, text="Next: Preprocessing", command=self.go_to_next, fg_color="green").pack(side="right", padx=10)
 
-    def create_table(self, frame, data, header_color="#3a4971", row_colors=("#2b2b2b", "#1e1e1e")):
+    def create_table(self, frame, data, header_color="#1E3A46", row_colors=("#2b2b2b", "#1e1e1e")):
         # Debugging: Check the data being passed to the table
         print("Data passed to create_table:", data)
 
@@ -112,7 +110,7 @@ class DatasetSummaryApp(ctk.CTk):
         self.create_table(preview_frame, preview_data)
 
         # Separator
-        ctk.CTkFrame(self.main_area, height=2, fg_color="#00b7eb").pack(fill="x", pady=5)
+        ctk.CTkFrame(self.main_area, height=2, fg_color="#1E3A46").pack(fill="x", pady=5)
 
         # Section 2: Data Types
         dtype_frame = ctk.CTkFrame(self.main_area, fg_color="#2b2b2b")
@@ -132,7 +130,7 @@ class DatasetSummaryApp(ctk.CTk):
             ).pack(pady=5)
 
         # Separator
-        ctk.CTkFrame(self.main_area, height=2, fg_color="#00b7eb").pack(fill="x", pady=5)
+        ctk.CTkFrame(self.main_area, height=2, fg_color="#1E3A46").pack(fill="x", pady=5)
 
         # Section 3: Basic Statistics
         stats_frame = ctk.CTkFrame(self.main_area, fg_color="#2b2b2b")
@@ -151,7 +149,7 @@ class DatasetSummaryApp(ctk.CTk):
         ).pack(pady=5)
 
         # Separator
-        ctk.CTkFrame(self.main_area, height=2, fg_color="#00b7eb").pack(fill="x", pady=5)
+        ctk.CTkFrame(self.main_area, height=2, fg_color="#1E3A46").pack(fill="x", pady=5)
 
         # Section 4: Missing Values
         missing_frame = ctk.CTkFrame(self.main_area, fg_color="#2b2b2b")
@@ -173,7 +171,7 @@ class DatasetSummaryApp(ctk.CTk):
             ).pack(pady=5)
 
         # Separator
-        ctk.CTkFrame(self.main_area, height=2, fg_color="#00b7eb").pack(fill="x", pady=5)
+        ctk.CTkFrame(self.main_area, height=2, fg_color="#1E3A46").pack(fill="x", pady=5)
 
         # Section 5: Value Distribution
         dist_frame = ctk.CTkFrame(self.main_area, fg_color="#2b2b2b")
@@ -197,7 +195,7 @@ class DatasetSummaryApp(ctk.CTk):
             ).pack(pady=5)
 
         # Separator
-        ctk.CTkFrame(self.main_area, height=2, fg_color="#00b7eb").pack(fill="x", pady=5)
+        ctk.CTkFrame(self.main_area, height=2, fg_color="#1E3A46").pack(fill="x", pady=5)
 
         # Section 6: Potential Outliers
         outlier_frame = ctk.CTkFrame(self.main_area, fg_color="#2b2b2b")
