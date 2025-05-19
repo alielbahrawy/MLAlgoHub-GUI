@@ -40,31 +40,31 @@ Here’s a glimpse of ML AlgoHub in action:
 
 ### ✅ Welcome Page with Logo  
 Start your journey with a sleek welcome screen featuring the ML AlgoHub logo.  
-![Welcome Page](Core\images\welcome.jpg)
+![Welcome Page](GitHub\Ml-Algorithms-Hub\Core\images\welcome.jpg)
 
 ---
 
 ### 📊 Data Summary Page  
 Get a quick overview of your dataset with key statistics and insights.  
-![Data Summary](Core\images\summary.jpg)
+![Data Summary](GitHub\Ml-Algorithms-Hub\Core\images\summary.jpg)
 
 ---
 
 ### 🧹 Data Preprocessing Page  
 Clean and prepare your data with easy-to-use preprocessing tools.  
-![Preprocessing Page](Core\images\pre.jpg)
+![Preprocessing Page](GitHub\Ml-Algorithms-Hub\Core\images\pre.jpg)
 
 ---
 
 ### 📈 Visualization Page  
 Explore your data with interactive plots and visualizations.  
-![Visualization Page](Core\images\vi.jpg)
+![Visualization Page](GitHub\Ml-Algorithms-Hub\Core\images\vi.jpg)
 
 ---
 
 ### 🤖 Models Page  
 Train and evaluate a variety of ML models with detailed metrics.  
-![Models Page](Core\images\models.jpg)
+![Models Page](GitHub\Ml-Algorithms-Hub\Core\images\models.jpg)
 
 ---
 
