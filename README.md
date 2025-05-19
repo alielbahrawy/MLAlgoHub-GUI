@@ -40,31 +40,31 @@ Here’s a glimpse of ML AlgoHub in action:
 
 ### ✅ Welcome Page with Logo  
 Start your journey with a sleek welcome screen featuring the ML AlgoHub logo.  
-![Welcome Page](images\welcome.jpg)
+![Welcome Page](Core\images\welcome.jpg)
 
 ---
 
 ### 📊 Data Summary Page  
 Get a quick overview of your dataset with key statistics and insights.  
-![Data Summary](images\summary.jpg)
+![Data Summary](Core\images\summary.jpg)
 
 ---
 
 ### 🧹 Data Preprocessing Page  
 Clean and prepare your data with easy-to-use preprocessing tools.  
-![Preprocessing Page](images\pre.jpg)
+![Preprocessing Page](Core\images\pre.jpg)
 
 ---
 
 ### 📈 Visualization Page  
 Explore your data with interactive plots and visualizations.  
-![Visualization Page](images\vi.jpg)
+![Visualization Page](Core\images\vi.jpg)
 
 ---
 
 ### 🤖 Models Page  
 Train and evaluate a variety of ML models with detailed metrics.  
-![Models Page](images\models.jpg)
+![Models Page](Core\images\models.jpg)
 
 ---
 
