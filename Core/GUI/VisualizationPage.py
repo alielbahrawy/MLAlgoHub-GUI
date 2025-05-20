@@ -10,13 +10,14 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 class VisualizationPage(ctk.CTk):
-    def __init__(self, data=None, on_next_callback=None):
+    def __init__(self, data=None, on_next_callback=None, on_back_callback=None):
         super().__init__()
 
         self.title("ML AlgoHub - Data Visualization")
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.data = data
         self.on_next_callback = on_next_callback
+        self.on_back_callback = on_back_callback
         self.plots = []  # To store plot canvases for clearing
 
         self.create_gui()
@@ -196,6 +197,8 @@ class VisualizationPage(ctk.CTk):
             plt.close(fig)
 
     def go_back(self):
+        if self.on_back_callback:
+            self.on_back_callback(self.data)
         self.destroy()
 
     def go_to_models(self):

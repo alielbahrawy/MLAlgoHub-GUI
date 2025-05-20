@@ -17,12 +17,13 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 class MLModel(ctk.CTk):
-    def __init__(self, processed_df=None):
+    def __init__(self, processed_df=None, on_back_callback=None):
         super().__init__()
 
         self.title("ML AlgoHub - Dataset Models")
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.processed_df = processed_df
+        self.on_back_callback = on_back_callback
         self.feature_vars = {}
         self.label_encoder = LabelEncoder()
 
@@ -167,6 +168,7 @@ class MLModel(ctk.CTk):
         self.run_all_button.pack(pady=10)
         self.submit_button = ctk.CTkButton(run_frame, text="Run Selected Model", fg_color="#00b7eb", command=self.run_selected_model)
         self.submit_button.pack(pady=5)
+        ctk.CTkButton(run_frame, text="Back to Visualization", fg_color="#ff4d4d", command=self.go_back).pack(pady=5)
 
         # Model Output Area (Dynamic with Scroll)
         self.model_area = ctk.CTkScrollableFrame(body_frame, fg_color="#2b2b2b")
@@ -179,6 +181,11 @@ class MLModel(ctk.CTk):
         self.update_tasks()
         self.update_algorithms(None)
         self.validate_inputs()
+
+    def go_back(self):
+        if self.on_back_callback:
+            self.on_back_callback(self.processed_df)
+        self.destroy()
 
     def update_tasks(self):
         model_type = self.model_type_var.get()

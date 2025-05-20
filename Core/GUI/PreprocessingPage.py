@@ -28,6 +28,8 @@ class PrePage(ctk.CTk):
         self.numeric_impute_vars = {}  # For selecting numeric columns to impute
         self.categorical_impute_vars = {}  # For selecting categorical columns to impute
         self.normalize_column_vars = {}  # For selecting columns to normalize
+        self.numeric_select_all_var = IntVar(value=0)  # For "All" checkbox in numeric imputation
+        self.categorical_select_all_var = IntVar(value=0)  # For "All" checkbox in categorical imputation
 
         self.create_gui()
 
@@ -49,11 +51,20 @@ class PrePage(ctk.CTk):
 
         # 1. Handle Missing Values - Numeric
         ctk.CTkLabel(self.sidebar, text="Handle Missing Values (Numeric):", font=("Arial", 12, "bold")).pack(pady=(10, 5), anchor="w")
-        self.numeric_missing_strategy = StringVar(value="Mean")
-        ctk.CTkComboBox(
-            self.sidebar, variable=self.numeric_missing_strategy, values=["Mean", "Median", "KNN", "Iterative"], state="readonly", width=200
-        ).pack(pady=5)
+        self.numeric_missing_strategy = StringVar(value="Simple Imputer")
+        self.numeric_imputer_combobox = ctk.CTkComboBox(
+            self.sidebar, variable=self.numeric_missing_strategy, values=["Simple Imputer", "KNN", "Iterative"], state="readonly", width=200
+        )
+        self.numeric_imputer_combobox.pack(pady=5)
+        self.simple_imputer_strategy = StringVar(value="Mean")
+        self.simple_imputer_combobox = ctk.CTkComboBox(
+            self.sidebar, variable=self.simple_imputer_strategy, values=["Mean", "Median"], state="readonly", width=200
+        )
+        self.simple_imputer_combobox.pack(pady=5)
+        self.simple_imputer_combobox.configure(state="disabled")  # Initially disabled
+        self.numeric_missing_strategy.trace_add("write", self.toggle_simple_imputer_combobox)
         ctk.CTkLabel(self.sidebar, text="Select Numeric Columns:", font=("Arial", 11)).pack(pady=(5, 2), anchor="w")
+        ctk.CTkCheckBox(self.sidebar, text="Select All", variable=self.numeric_select_all_var, command=self.toggle_numeric_select_all).pack(anchor="w", padx=5, pady=2)
         self.numeric_impute_frame = ctk.CTkScrollableFrame(self.sidebar, height=100, fg_color="#2b2b2b")
         self.numeric_impute_frame.pack(pady=5, fill="x")
         self.update_numeric_impute_checkboxes()
@@ -66,6 +77,7 @@ class PrePage(ctk.CTk):
             self.sidebar, variable=self.categorical_missing_strategy, values=["Mode", "Constant"], state="readonly", width=200
         ).pack(pady=5)
         ctk.CTkLabel(self.sidebar, text="Select Categorical Columns:", font=("Arial", 11)).pack(pady=(5, 2), anchor="w")
+        ctk.CTkCheckBox(self.sidebar, text="Select All", variable=self.categorical_select_all_var, command=self.toggle_categorical_select_all).pack(anchor="w", padx=5, pady=2)
         self.categorical_impute_frame = ctk.CTkScrollableFrame(self.sidebar, height=100, fg_color="#2b2b2b")
         self.categorical_impute_frame.pack(pady=5, fill="x")
         self.update_categorical_impute_checkboxes()
@@ -73,10 +85,15 @@ class PrePage(ctk.CTk):
 
         # 1. Handle Missing Values - Drop Rows
         ctk.CTkLabel(self.sidebar, text="Drop Rows with Missing Values:", font=("Arial", 12, "bold")).pack(pady=(10, 5), anchor="w")
+        self.drop_rows_strategy = StringVar(value="All")
+        ctk.CTkComboBox(
+            self.sidebar, variable=self.drop_rows_strategy, values=["All", "More than 50%"], state="readonly", width=200
+        ).pack(pady=5)
         ctk.CTkButton(self.sidebar, text="Drop Rows", command=self.drop_missing_rows, fg_color="#1E3A46").pack(pady=5)
 
         # 2. Handle Duplicates
         ctk.CTkLabel(self.sidebar, text="Handle Duplicates:", font=("Arial", 12, "bold")).pack(pady=(10, 5), anchor="w")
+        ctk.CTkButton(self.sidebar, text="Check Duplicates", command=self.check_duplicates, fg_color="#1E3A46").pack(pady=5)
         ctk.CTkButton(self.sidebar, text="Remove Duplicates", command=self.remove_duplicates, fg_color="#1E3A46").pack(pady=5)
 
         # 3. Encoding Section
@@ -84,7 +101,7 @@ class PrePage(ctk.CTk):
         ctk.CTkLabel(self.sidebar, text="Select Target for Label Encoding:", font=("Arial", 11)).pack(pady=(5, 2), anchor="w")
         self.label_encode_target_var = StringVar()
         self.label_encode_target_dropdown = ctk.CTkComboBox(
-            self.sidebar, variable=self.label_encode_target_var, values=self.get_columns(), state="readonly", width=200
+            self.sidebar, variable=self.label_encode_target_var, values=self.get_categorical_columns(), state="readonly", width=200
         )
         self.label_encode_target_dropdown.pack(pady=5)
         ctk.CTkButton(self.sidebar, text="Label Encode Target", command=self.label_encode_target, fg_color="#1E3A46").pack(pady=5)
@@ -145,12 +162,28 @@ class PrePage(ctk.CTk):
         # Data Preview
         self.preview_label = ctk.CTkLabel(self.main_area, text="Data Preview", font=("Arial", 16, "bold"))
         self.preview_label.pack(pady=(10, 5))
-        self.preview_text = ctk.CTkTextbox(self.main_area, height=400, width=800, font=("Courier", 12))
+        self.preview_text = ctk.CTkTextbox(self.main_area, height=400, width=800, font=("Courier", 12), state="disabled")
         self.preview_text.pack(pady=5)
         ctk.CTkButton(self.main_area, text="Refresh Preview", command=self.show_data_summary, fg_color="#00b7eb").pack(pady=5)
 
         # Initial Data Preview
         self.show_data_summary()
+
+    def toggle_simple_imputer_combobox(self, *args):
+        if self.numeric_missing_strategy.get() == "Simple Imputer":
+            self.simple_imputer_combobox.configure(state="readonly")
+        else:
+            self.simple_imputer_combobox.configure(state="disabled")
+
+    def toggle_numeric_select_all(self):
+        select_all = self.numeric_select_all_var.get()
+        for var in self.numeric_impute_vars.values():
+            var.set(select_all)
+    
+    def toggle_categorical_select_all(self):
+        select_all = self.categorical_select_all_var.get()
+        for var in self.categorical_impute_vars.values():
+            var.set(select_all)
 
     def get_columns(self):
         return list(self.processed_df.columns) if self.processed_df is not None else []
@@ -163,7 +196,7 @@ class PrePage(ctk.CTk):
     def get_categorical_columns(self):
         if self.processed_df is None:
             return []
-        return list(self.processed_df.select_dtypes(exclude=[np.number]).columns)
+        return list(self.processed_df.select_dtypes(include=['object']).columns)
 
     def update_numeric_impute_checkboxes(self):
         for widget in self.numeric_impute_frame.winfo_children():
@@ -177,6 +210,8 @@ class PrePage(ctk.CTk):
             var = IntVar(value=0)
             self.numeric_impute_vars[col] = var
             ctk.CTkCheckBox(self.numeric_impute_frame, text=col, variable=var).pack(anchor="w", padx=5, pady=2)
+        # Update "Select All" checkbox state based on current selections
+        self.numeric_select_all_var.set(0)
 
     def update_categorical_impute_checkboxes(self):
         for widget in self.categorical_impute_frame.winfo_children():
@@ -190,6 +225,8 @@ class PrePage(ctk.CTk):
             var = IntVar(value=0)
             self.categorical_impute_vars[col] = var
             ctk.CTkCheckBox(self.categorical_impute_frame, text=col, variable=var).pack(anchor="w", padx=5, pady=2)
+        # Update "Select All" checkbox state based on current selections
+        self.categorical_select_all_var.set(0)
 
     def update_normalize_columns_checkboxes(self):
         for widget in self.normalize_columns_frame.winfo_children():
@@ -205,14 +242,17 @@ class PrePage(ctk.CTk):
             ctk.CTkCheckBox(self.normalize_columns_frame, text=col, variable=var).pack(anchor="w", padx=5, pady=2)
 
     def show_data_summary(self):
+        self.preview_text.configure(state="normal")  # Temporarily enable to update text
         self.preview_text.delete("1.0", "end")
         if self.processed_df is None or self.processed_df.empty:
             self.preview_text.insert("1.0", "No data loaded.")
+            self.preview_text.configure(state="disabled")
             return
         preview = "First 5 Rows:\n" + str(self.processed_df.head()) + "\n\n"
         preview += "Data Types:\n" + str(self.processed_df.dtypes)
         self.preview_text.insert("1.0", preview)
-        self.label_encode_target_dropdown.configure(values=self.get_columns())
+        self.preview_text.configure(state="disabled")
+        self.label_encode_target_dropdown.configure(values=self.get_categorical_columns())
         self.one_hot_column_dropdown.configure(values=self.get_categorical_columns())
         self.log_transform_dropdown.configure(values=self.get_numeric_columns())
         self.update_numeric_impute_checkboxes()
@@ -229,8 +269,9 @@ class PrePage(ctk.CTk):
             messagebox.showerror("Error", "No numeric columns selected for imputation.")
             return
         try:
-            if strategy in ["Mean", "Median"]:
-                imputer = SimpleImputer(strategy=strategy.lower())
+            if strategy == "Simple Imputer":
+                sub_strategy = self.simple_imputer_strategy.get().lower()
+                imputer = SimpleImputer(strategy=sub_strategy)
             elif strategy == "KNN":
                 imputer = KNNImputer(n_neighbors=5)
             elif strategy == "Iterative":
@@ -267,12 +308,27 @@ class PrePage(ctk.CTk):
             return
         try:
             initial_rows = len(self.processed_df)
-            self.processed_df = self.processed_df.dropna()
+            strategy = self.drop_rows_strategy.get()
+            if strategy == "All":
+                self.processed_df = self.processed_df.dropna()
+            elif strategy == "More than 50%":
+                thresh = int(self.processed_df.shape[1] * 0.5)  # At least 50% non-NA values
+                self.processed_df = self.processed_df.dropna(thresh=thresh)
             removed_rows = initial_rows - len(self.processed_df)
             self.show_data_summary()
-            messagebox.showinfo("Success", f"Dropped {removed_rows} rows with missing values.")
+            messagebox.showinfo("Success", f"Dropped {removed_rows} rows with missing values using {strategy} strategy.")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to drop rows with missing values: {str(e)}")
+
+    def check_duplicates(self):
+        if self.processed_df is None:
+            messagebox.showerror("Error", "No dataset loaded.")
+            return
+        try:
+            duplicate_count = len(self.processed_df[self.processed_df.duplicated()])
+            messagebox.showinfo("Duplicates", f"Found {duplicate_count} duplicate rows.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to check duplicates: {str(e)}")
 
     def remove_duplicates(self):
         if self.processed_df is None:

@@ -35,13 +35,17 @@ def open_visualization(preprocessing_page, data):
     preprocessing_page.destroy()
     visualization_page = VisualizationPage(
         data=data,
-        on_next_callback=lambda df: open_data_models(visualization_page, df)
+        on_next_callback=lambda df: open_data_models(visualization_page, df),
+        on_back_callback=lambda df: open_preprocessing(visualization_page, df)
     )
     visualization_page.mainloop()
 
 def open_data_models(visualization_page, data):
     visualization_page.destroy()
-    data_models = MLModel(processed_df=data)
+    data_models = MLModel(
+        processed_df=data,
+        on_back_callback=lambda df: open_visualization(data_models, df)
+    )
     data_models.mainloop()
 
 def main():

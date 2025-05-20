@@ -2,6 +2,9 @@ import customtkinter as ctk
 from tkinter import messagebox, StringVar
 import pandas as pd
 import numpy as np
+import os
+import webbrowser
+from ydata_profiling import ProfileReport
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -9,6 +12,7 @@ ctk.set_default_color_theme("blue")
 class DatasetSummaryApp(ctk.CTk):
     def __init__(self, data=None, on_next_callback=None):
         super().__init__()
+        self.title("ML AlgoHub - Data Summary")
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.configure(fg_color="#2b2b2b")  # Dark gray background
         self.data = data
@@ -79,6 +83,26 @@ class DatasetSummaryApp(ctk.CTk):
         for i in range(len(data) + 1):
             table_frame.grid_rowconfigure(i, weight=1)
 
+    def generate_html_report(self):
+        if self.data is None or self.data.empty:
+            messagebox.showerror("Error", "No dataset loaded to generate a report.")
+            return
+
+        # Create report directory if it doesn't exist
+        report_dir = "Reports"
+        os.makedirs(report_dir, exist_ok=True)
+        report_path = os.path.join(report_dir, "data_file1.html")
+
+        try:
+            # Generate ProfileReport
+            profile = ProfileReport(self.data, explorative=True)
+            profile.to_file(report_path)
+            # Open the HTML file in the default web browser
+            webbrowser.open('file://' + os.path.realpath(report_path))
+            messagebox.showinfo("Success", "HTML report generated and opened in your browser.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to generate HTML report: {str(e)}")
+
     def display_summary(self):
         # Clear previous content
         for widget in self.main_area.winfo_children():
@@ -95,14 +119,26 @@ class DatasetSummaryApp(ctk.CTk):
             preview_frame, text="Dataset Preview", font=("Arial", 16, "bold"),
             text_color="#00b7eb", fg_color="#2b2b2b"
         ).pack(pady=(5, 5))
-        # Row Selection Dropdown
-        row_select_frame = ctk.CTkFrame(preview_frame, fg_color="#2b2b2b")
-        row_select_frame.pack(fill="x", pady=5)
+
+        # Sub-frame for button and row selection
+        controls_frame = ctk.CTkFrame(preview_frame, fg_color="#2b2b2b")
+        controls_frame.pack(fill="x", pady=5)
+
+        # Generate HTML Report Button on the right
+        ctk.CTkButton(
+            controls_frame, text="Report", command=self.generate_html_report,
+            fg_color="#00b7eb", font=("Arial", 12, "bold")
+        ).pack(side="right", padx=5, pady=5)
+
+        # Row Selection Dropdown on the left
+        row_select_frame = ctk.CTkFrame(controls_frame, fg_color="#2b2b2b")
+        row_select_frame.pack(side="left", padx=5)
         ctk.CTkLabel(row_select_frame, text="Show Rows:", font=("Arial", 12), text_color="white").pack(side="left", padx=5)
         ctk.CTkComboBox(
             row_select_frame, variable=self.preview_rows_var, values=["5", "10", "20"],
             state="readonly", width=80, command=self.update_preview_rows
         ).pack(side="left", padx=5)
+
         # Display Table
         preview_data = self.data.head(int(self.preview_rows_var.get()))
         # Debugging: Check the preview data
