@@ -74,7 +74,7 @@ class PrePage(ctk.CTk):
         ctk.CTkLabel(self.sidebar, text="Handle Missing Values (Categorical):", font=("Arial", 12, "bold")).pack(pady=(10, 5), anchor="w")
         self.categorical_missing_strategy = StringVar(value="Mode")
         ctk.CTkComboBox(
-            self.sidebar, variable=self.categorical_missing_strategy, values=["Mode", "Constant"], state="readonly", width=200
+            self.sidebar, variable=self.categorical_missing_strategy, values=["Mode"], state="readonly", width=200
         ).pack(pady=5)
         ctk.CTkLabel(self.sidebar, text="Select Categorical Columns:", font=("Arial", 11)).pack(pady=(5, 2), anchor="w")
         ctk.CTkCheckBox(self.sidebar, text="Select All", variable=self.categorical_select_all_var, command=self.toggle_categorical_select_all).pack(anchor="w", padx=5, pady=2)
@@ -294,8 +294,8 @@ class PrePage(ctk.CTk):
         try:
             if strategy == "Mode":
                 imputer = SimpleImputer(strategy="most_frequent")
-            elif strategy == "Constant":
-                imputer = SimpleImputer(strategy="constant", fill_value="Missing")
+            # elif strategy == "Constant":
+            #     imputer = SimpleImputer(strategy="constant", fill_value="Missing")
             self.processed_df[selected_cols] = imputer.fit_transform(self.processed_df[selected_cols])
             self.show_data_summary()
             messagebox.showinfo("Success", f"Imputed missing categorical values using {strategy}.")

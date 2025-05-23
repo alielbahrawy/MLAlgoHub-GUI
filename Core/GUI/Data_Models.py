@@ -9,9 +9,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.metrics import classification_report, accuracy_score, r2_score, mean_squared_error
+from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image, ImageTk
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -34,7 +38,7 @@ class MLModel(ctk.CTk):
                 "SVR", "Decision Tree Regressor", "Random Forest Regressor"
             ],
             "Classification": [
-                "Logistic Regression", "Naive Bayes", "Random Forest Classifier",
+                "Logistic Regression", "Naive Bayes", "RandomForestClassifier",
                 "SVC", "KNN", "Decision Tree Classifier"
             ],
             "Clustering": [
@@ -51,8 +55,8 @@ class MLModel(ctk.CTk):
             "Random Forest Regressor": RandomForestRegressor(),
             "Logistic Regression": LogisticRegression(max_iter=300),
             "Naive Bayes": GaussianNB(),
-            "Random Forest Classifier": RandomForestClassifier(),
-            "SVC": SVC(),
+            "RandomForestClassifier": RandomForestClassifier(),
+            "SVC": SVC(probability=True),  # Enable probability for ROC
             "KNN": KNeighborsClassifier(),
             "Decision Tree Classifier": DecisionTreeClassifier(),
             "KMeans": KMeans(n_clusters=3, random_state=42),
@@ -64,6 +68,11 @@ class MLModel(ctk.CTk):
             "KMeans": {"n_clusters": 3},
             "DBSCAN": {"eps": 0.5, "min_samples": 5}
         }
+
+        # Store latest predictions and trained models for visualization
+        self.latest_predictions = {}
+        self.trained_models = {}
+        self.visualization_images = {}  # Store image references
 
         self.create_gui()
 
@@ -168,7 +177,11 @@ class MLModel(ctk.CTk):
         self.run_all_button.pack(pady=10)
         self.submit_button = ctk.CTkButton(run_frame, text="Run Selected Model", fg_color="#00b7eb", command=self.run_selected_model)
         self.submit_button.pack(pady=5)
-        ctk.CTkButton(run_frame, text="Back to Visualization", fg_color="#ff4d4d", command=self.go_back).pack(pady=5)
+        self.visualize_button = ctk.CTkButton(
+            run_frame, text="Model Evaluation", fg_color="#19BFCE", command=self.generate_visualizations
+        )
+        self.visualize_button.pack(pady=5)
+        ctk.CTkButton(run_frame, text="Back to Visualization", fg_color="#EE1212", command=self.go_back).pack(pady=5)
 
         # Model Output Area (Dynamic with Scroll)
         self.model_area = ctk.CTkScrollableFrame(body_frame, fg_color="#2b2b2b")
@@ -281,6 +294,7 @@ class MLModel(ctk.CTk):
             widget.destroy()
         self.model_frames = {}
         self.result_labels = {}
+        self.visualization_images.clear()
 
     def validate_inputs(self):
         valid = True
@@ -319,6 +333,7 @@ class MLModel(ctk.CTk):
 
         self.run_all_button.configure(state="normal" if valid else "disabled")
         self.submit_button.configure(state="normal" if valid else "disabled")
+        self.visualize_button.configure(state="normal" if valid and task == "Classification" else "disabled")
         if not valid and error_message:
             print(f"Validation failed: {error_message}")
 
@@ -379,6 +394,8 @@ class MLModel(ctk.CTk):
                 X_train, X_test, y_train, y_test = self.get_data()
                 model_instance.fit(X_train, y_train)
                 y_pred = model_instance.predict(X_test)
+                self.latest_predictions[model_name] = (X_test, y_test, y_pred)
+                self.trained_models[model_name] = model_instance  # Store trained model
 
                 if task == "Regression":
                     r2 = r2_score(y_test, y_pred)
@@ -403,6 +420,133 @@ class MLModel(ctk.CTk):
         except Exception as e:
             messagebox.showerror("Error", f"Failed to run {model_name}: {str(e)}")
             print(f"Error in {model_name}: {str(e)}")
+
+    def generate_visualizations(self):
+        if self.processed_df is None:
+            messagebox.showerror("Error", "No dataset loaded.")
+            return
+
+        task = self.task_var.get()
+        if task != "Classification":
+            messagebox.showerror("Error", "Visualizations are only available for Classification tasks.")
+            return
+
+        selected_model = self.model_var.get()
+        if selected_model not in self.latest_predictions:
+            messagebox.showerror("Error", f"Please run the {selected_model} model first.")
+            return
+
+        X_test, y_test, y_pred = self.latest_predictions[selected_model]
+        n_classes = len(np.unique(y_test))
+
+        # Clear previous images
+        for img in self.visualization_images.values():
+            if img:
+                img.destroy()
+        self.visualization_images.clear()
+
+        # Generate and display Confusion Matrix
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+        plt.title(f"Confusion Matrix for {selected_model}")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        cm_filename = f"confusion_matrix_{selected_model.replace(' ', '_')}.png"
+        plt.savefig(cm_filename)
+        plt.close()
+
+        cm_img = Image.open(cm_filename)
+        cm_img = cm_img.resize((400, 300), Image.Resampling.LANCZOS)  # Resize for GUI
+        cm_photo = ImageTk.PhotoImage(cm_img)
+        cm_frame = ctk.CTkFrame(self.model_area, fg_color="#1e1e1e")
+        cm_frame.pack(fill="x", padx=5, pady=5)
+        cm_label = ctk.CTkLabel(cm_frame, image=cm_photo, text="")
+        cm_label.image = cm_photo  # Keep a reference to avoid garbage collection
+        cm_label.pack()
+        self.model_frames[f"CM_{selected_model}"] = cm_frame
+        self.visualization_images["cm"] = cm_label
+
+        # Generate and display ROC Curve (for binary classification only)
+        roc_report = ""
+        if n_classes == 2:
+            try:
+                model_instance = self.trained_models[selected_model]
+                if hasattr(model_instance, "predict_proba"):
+                    y_score = model_instance.predict_proba(X_test)[:, 1]
+                    fpr, tpr, _ = roc_curve(y_test, y_score)
+                    roc_auc = auc(fpr, tpr)
+
+                    plt.figure(figsize=(8, 6))
+                    plt.plot(fpr, tpr, color="darkorange", lw=2, label=f"ROC curve (area = {roc_auc:.2f})")
+                    plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+                    plt.xlim([0.0, 1.0])
+                    plt.ylim([0.0, 1.05])
+                    plt.xlabel("False Positive Rate")
+                    plt.ylabel("True Positive Rate")
+                    plt.title(f"ROC Curve for {selected_model}")
+                    plt.legend(loc="lower right")
+                    roc_filename = f"roc_curve_{selected_model.replace(' ', '_')}.png"
+                    plt.savefig(roc_filename)
+                    plt.close()
+
+                    roc_img = Image.open(roc_filename)
+                    roc_img = roc_img.resize((400, 300), Image.Resampling.LANCZOS)  # Resize for GUI
+                    roc_photo = ImageTk.PhotoImage(roc_img)
+                    roc_frame = ctk.CTkFrame(self.model_area, fg_color="#1e1e1e")
+                    roc_frame.pack(fill="x", padx=5, pady=5)
+                    roc_label = ctk.CTkLabel(roc_frame, image=roc_photo, text="")
+                    roc_label.image = roc_photo  # Keep a reference to avoid garbage collection
+                    roc_label.pack()
+                    self.model_frames[f"ROC_{selected_model}"] = roc_frame
+                    self.visualization_images["roc"] = roc_label
+                    roc_report = f"\nAUC = {roc_auc:.2f}"
+                else:
+                    roc_report = "\nROC Curve not available: Model does not support probability predictions."
+            except Exception as e:
+                roc_report = f"\nFailed to generate ROC Curve: {str(e)}"
+        else:
+            roc_report = "\nROC Curve not available for multi-class classification."
+
+        # Generate and display Feature Importance (for RandomForestClassifier)
+        if selected_model == "RandomForestClassifier":
+            try:
+                model_instance = self.trained_models[selected_model]
+                feature_names = [col for col, var in self.feature_vars.items() if var.get() and col != self.target_var.get()]
+                importances = model_instance.feature_importances_
+                indices = np.argsort(importances)[::-1]
+
+                plt.figure(figsize=(10, 6))
+                plt.bar(range(len(importances)), importances[indices], align="center")
+                plt.xticks(range(len(importances)), [feature_names[i] for i in indices], rotation=45, ha="right")
+                plt.xlabel("Feature")
+                plt.ylabel("Importance")
+                plt.title(f"Feature Importance for {selected_model}")
+                fi_filename = f"feature_importance_{selected_model.replace(' ', '_')}.png"
+                plt.tight_layout()  # Adjust layout to prevent label cutoff
+                plt.savefig(fi_filename)
+                plt.close()
+
+                fi_img = Image.open(fi_filename)
+                fi_img = fi_img.resize((400, 300), Image.Resampling.LANCZOS)  # Resize for GUI
+                fi_photo = ImageTk.PhotoImage(fi_img)
+                fi_frame = ctk.CTkFrame(self.model_area, fg_color="#1e1e1e")
+                fi_frame.pack(fill="x", padx=5, pady=5)
+                fi_label = ctk.CTkLabel(fi_frame, image=fi_photo, text="")
+                fi_label.image = fi_photo  # Keep a reference to avoid garbage collection
+                fi_label.pack()
+                self.model_frames[f"FI_{selected_model}"] = fi_frame
+                self.visualization_images["fi"] = fi_label
+            except Exception as e:
+                print(f"Failed to generate Feature Importance: {str(e)}")
+
+        # Add text summary
+        summary_frame = ctk.CTkFrame(self.model_area, fg_color="#1e1e1e")
+        summary_frame.pack(fill="x", padx=5, pady=5)
+        summary_label = ctk.CTkLabel(summary_frame, text=f"Visualizations for {selected_model}\nConfusion Matrix, ROC Curve{roc_report}", font=("Courier", 11), justify="left")
+        summary_label.pack(padx=5, pady=5)
+        self.model_frames[f"Summary_{selected_model}"] = summary_frame
+        self.result_labels[f"Summary_{selected_model}"] = summary_label
 
     def run_selected_model(self):
         if self.processed_df is None:
